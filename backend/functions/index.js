@@ -100,7 +100,7 @@ exports.handleNewMessage3 = onValueCreated({
 
       // Initialize Google AI Studio
       const genAI = new GoogleGenerativeAI(googleApiKey.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite-preview-06-17" });
 
       // Create system prompt
       const systemPrompt = `You are a helpful gardening assistant. You help users track and care for their plants through conversational entries. 
