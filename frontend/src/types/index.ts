@@ -7,6 +7,10 @@ export interface User {
 
 export interface Garden {
   id: string;
+  name?: string;
+  description?: string;
+  createdAt: string;
+  createdBy: string;
   users: {
     [userId: string]: {
       role: 'owner' | 'collaborator';

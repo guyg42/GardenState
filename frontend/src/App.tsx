@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuthContext } from './components/Auth/AuthProvider';
 import { LoginForm } from './components/Auth/LoginForm';
 import { GardenList } from './components/Gardens/GardenList';
-import { PlantList } from './components/Plants/PlantList';
+import { GardenDetail } from './components/Gardens/GardenDetail';
 import { PlantDetail } from './components/Plants/PlantDetail';
 import { EntryChat } from './components/Entries/EntryChat';
 import { LoadingSpinner } from './components/Common/LoadingSpinner';
@@ -42,7 +42,7 @@ const AppRoutes: React.FC = () => {
           path="/garden/:gardenId"
           element={
             <ProtectedRoute>
-              <PlantList />
+              <GardenDetail />
             </ProtectedRoute>
           }
         />

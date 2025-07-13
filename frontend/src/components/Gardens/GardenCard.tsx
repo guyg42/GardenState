@@ -16,7 +16,7 @@ export const GardenCard: React.FC<GardenCardProps> = ({ garden, onClick }) => {
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">
-          Garden {garden.id.slice(-6)}
+          {garden.name || `Garden ${garden.id.slice(-6)}`}
         </h3>
         <div className="text-sm text-gray-500">
           {plantCount} plant{plantCount !== 1 ? 's' : ''}
