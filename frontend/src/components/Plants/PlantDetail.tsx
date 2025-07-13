@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, push, set, onValue, off, update } from 'firebase/database';
 import { database } from '../../utils/firebase';
@@ -22,6 +22,9 @@ export const PlantDetail: React.FC = () => {
     dateAcquired: '',
     ageWhenAcquired: ''
   });
+
+  const plantTypeInputRef = useRef<HTMLInputElement>(null);
+  const isDesktop = window.innerWidth >= 768;
 
   useEffect(() => {
     if (!plantId) return;
@@ -89,6 +92,13 @@ export const PlantDetail: React.FC = () => {
     setIsEditing(true);
   };
 
+  // Focus the first input when entering edit mode (desktop only)
+  useEffect(() => {
+    if (isEditing && isDesktop && plantTypeInputRef.current) {
+      plantTypeInputRef.current.focus();
+    }
+  }, [isEditing, isDesktop]);
+
   const handleSaveEdit = async () => {
     if (!plantId) return;
 
@@ -126,6 +136,27 @@ export const PlantDetail: React.FC = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEdit();
+    }
+  };
+
+  const handleTextareaKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEdit();
+    }
+    // Shift+Enter will naturally create a new line in textarea
   };
 
   if (loading) {
@@ -187,9 +218,11 @@ export const PlantDetail: React.FC = () => {
                   Plant Type
                 </label>
                 <input
+                  ref={plantTypeInputRef}
                   type="text"
                   value={editForm.plantType}
                   onChange={(e) => handleInputChange('plantType', e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder="e.g., Tomato, Rose, Basil"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
@@ -203,6 +236,7 @@ export const PlantDetail: React.FC = () => {
                   type="text"
                   value={editForm.nickname}
                   onChange={(e) => handleInputChange('nickname', e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder="Give your plant a name"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
@@ -217,6 +251,7 @@ export const PlantDetail: React.FC = () => {
                     type="date"
                     value={editForm.dateAcquired}
                     onChange={(e) => handleInputChange('dateAcquired', e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
@@ -229,6 +264,7 @@ export const PlantDetail: React.FC = () => {
                     type="text"
                     value={editForm.ageWhenAcquired}
                     onChange={(e) => handleInputChange('ageWhenAcquired', e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="e.g., 6 months, 2 weeks, seedling"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
@@ -242,6 +278,7 @@ export const PlantDetail: React.FC = () => {
                 <textarea
                   value={editForm.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
+                  onKeyDown={handleTextareaKeyDown}
                   placeholder="Notes about your plant, care instructions, or observations"
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"

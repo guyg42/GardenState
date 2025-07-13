@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, onValue, off, update } from 'firebase/database';
 import { database } from '../../utils/firebase';
@@ -18,6 +18,9 @@ export const GardenDetail: React.FC = () => {
     name: '',
     description: ''
   });
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const isDesktop = window.innerWidth >= 768; // md breakpoint
 
   useEffect(() => {
     if (!gardenId) return;
@@ -55,6 +58,13 @@ export const GardenDetail: React.FC = () => {
     setIsEditing(true);
   };
 
+  // Focus the first input when entering edit mode (desktop only)
+  useEffect(() => {
+    if (isEditing && isDesktop && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [isEditing, isDesktop]);
+
   const handleSaveEdit = async () => {
     if (!gardenId) return;
 
@@ -88,6 +98,27 @@ export const GardenDetail: React.FC = () => {
     }));
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEdit();
+    }
+  };
+
+  const handleTextareaKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEdit();
+    }
+    // Shift+Enter will naturally create a new line in textarea
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -119,7 +150,7 @@ export const GardenDetail: React.FC = () => {
                 </svg>
               </button>
               <h1 className="text-3xl font-bold text-gray-900">
-                {garden.name || `Garden ${garden.id.slice(-6)}`}
+                {garden.name || "My Garden"}
               </h1>
             </div>
           </div>
@@ -147,9 +178,11 @@ export const GardenDetail: React.FC = () => {
                   Garden Name
                 </label>
                 <input
+                  ref={nameInputRef}
                   type="text"
                   value={editForm.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder="Give your garden a name"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
@@ -162,6 +195,7 @@ export const GardenDetail: React.FC = () => {
                 <textarea
                   value={editForm.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
+                  onKeyDown={handleTextareaKeyDown}
                   placeholder="Describe your garden, its purpose, location, or any notes"
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
