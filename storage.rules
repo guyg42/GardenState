@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /gardens/{gardenId}/plants/{plantId}/entries/{entryId}/{imageId} {
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/gardens/$(gardenId)) &&
+        get(/databases/$(database)/documents/gardens/$(gardenId)).data.users[request.auth.uid] != null;
+    }
+  }
+}

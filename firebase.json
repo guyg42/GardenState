@@ -1,0 +1,47 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "functions": {
+    "source": "backend/functions"
+  },
+  "hosting": {
+    "public": "frontend/build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9299
+    },
+    "functions": {
+      "port": 5201
+    },
+    "database": {
+      "port": 9300
+    },
+    "hosting": {
+      "port": 5300
+    },
+    "storage": {
+      "port": 9400
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4300
+    },
+    "singleProjectMode": false
+  }
+}

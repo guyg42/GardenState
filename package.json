@@ -1,0 +1,21 @@
+{
+  "name": "garden-state",
+  "version": "1.0.0",
+  "description": "A Firebase-based gardening web application with AI-powered chat",
+  "scripts": {
+    "dev": "concurrently \"npm run emulators\" \"npm run frontend:dev\"",
+    "emulators": "firebase emulators:start",
+    "frontend:dev": "cd frontend && npm run start:emulator",
+    "frontend:build": "cd frontend && npm run build",
+    "backend:deploy": "firebase deploy --only functions",
+    "deploy": "npm run frontend:build && firebase deploy",
+    "setup": "npm run install:all && firebase login",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend/functions"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["gardening", "firebase", "react", "ai", "chat"],
+  "author": "",
+  "license": "MIT"
+}

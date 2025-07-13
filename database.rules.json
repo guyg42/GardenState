@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "gardens": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$gardenId": {
+        ".read": "data.child('users').child(auth.uid).exists()",
+        ".write": "data.child('users').child(auth.uid).child('role').val() === 'owner' || !data.exists()"
+      }
+    },
+    "plants": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$plantId": {
+        ".read": "root.child('gardens').child(data.child('gardenId').val()).child('users').child(auth.uid).exists()",
+        ".write": "root.child('gardens').child(data.child('gardenId').val()).child('users').child(auth.uid).exists() || !data.exists()"
+      }
+    }
+  }
+}

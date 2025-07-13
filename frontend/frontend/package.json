@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^2.1.1",
+    "@types/react-router-dom": "^5.3.3",
+    "browser-image-compression": "^2.0.2",
+    "firebase": "^11.10.0",
+    "langchain": "^0.3.29",
+    "react-router-dom": "^7.6.3"
+  }
+}
