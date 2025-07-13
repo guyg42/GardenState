@@ -159,7 +159,7 @@ export const PlantDetail: React.FC = () => {
                 </svg>
               </button>
               <h1 className="text-3xl font-bold text-gray-900">
-                Plant {plant.id.slice(-6)}
+                {plant.nickname || plant.plantType || `Plant ${plant.id.slice(-6)}`}
               </h1>
             </div>
           </div>
