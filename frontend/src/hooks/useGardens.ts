@@ -70,7 +70,7 @@ export const useGardens = () => {
     };
   }, [user]);
 
-  const createGarden = async (name: string = 'New Garden') => {
+  const createGarden = async (name?: string) => {
     console.log('createGarden: Starting garden creation');
     if (!user) {
       console.error('createGarden: No user authenticated');
@@ -83,16 +83,21 @@ export const useGardens = () => {
       const gardenId = gardenRef.key!;
       console.log('createGarden: Generated garden ID:', gardenId);
       
-      const gardenData = {
-        name,
+      const gardenData: any = {
         users: {
           [user.uid]: {
             role: 'owner'
           }
         },
         plants: {},
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        createdBy: user.uid
       };
+
+      // Only include name if provided
+      if (name) {
+        gardenData.name = name;
+      }
 
       console.log('createGarden: Setting garden data in database');
       await set(gardenRef, gardenData);
