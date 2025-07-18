@@ -52,7 +52,8 @@ exports.handleNewMessage3 = onValueCreated({
         .sort(([, a], [, b]) => new Date(a.timestamp) - new Date(b.timestamp))
         .map(([, msg]) => ({
           role: msg.role === 'user' ? 'human' : 'assistant',
-          content: msg.content
+          content: msg.content,
+          images: msg.images || []
         }));
 
       // Build context from other entries and current entry's human summary
@@ -118,14 +119,63 @@ ${plantContext}
 Please respond to the user's message about their plant.`;
 
       // Prepare conversation for Gemini
-      const conversationHistory = messages.slice(-10).map(msg => 
-        `${msg.role === 'human' ? 'User' : 'Assistant'}: ${msg.content}`
-      ).join('\n\n');
+      const recentMessages = messages.slice(-10);
       
-      const fullPrompt = `${systemPrompt}\n\nConversation history:\n${conversationHistory}\n\nPlease respond to the user's latest message.`;
+      // Collect all images from the conversation
+      const allImages = [];
+      recentMessages.forEach(msg => {
+        if (msg.images && msg.images.length > 0) {
+          allImages.push(...msg.images);
+        }
+      });
+      
+      let contentParts = [];
+      
+      // Build conversation history text with image references
+      const conversationHistory = recentMessages.map(msg => {
+        let msgText = `${msg.role === 'human' ? 'User' : 'Assistant'}: ${msg.content}`;
+        if (msg.images && msg.images.length > 0) {
+          msgText += ` [shared ${msg.images.length} image(s)]`;
+        }
+        return msgText;
+      }).join('\n\n');
+      
+      // Add system prompt and conversation context
+      if (allImages.length > 0) {
+        const contextPrompt = `${systemPrompt}\n\nConversation history:\n${conversationHistory}\n\nPlease analyze all the provided images from this conversation and respond to the user's latest message about their plant. Consider the visual information from all images when providing advice.`;
+        
+        contentParts.push({
+          text: contextPrompt
+        });
+        
+        // Add all images from the conversation
+        for (const imageUrl of allImages) {
+          try {
+            const imageResponse = await fetch(imageUrl);
+            const imageBuffer = await imageResponse.arrayBuffer();
+            const base64Image = Buffer.from(imageBuffer).toString('base64');
+            
+            contentParts.push({
+              inlineData: {
+                data: base64Image,
+                mimeType: 'image/jpeg'
+              }
+            });
+          } catch (error) {
+            console.error('Error fetching image:', error);
+          }
+        }
+      } else {
+        // Text-only conversation
+        const fullPrompt = `${systemPrompt}\n\nConversation history:\n${conversationHistory}\n\nPlease respond to the user's latest message.`;
+        
+        contentParts.push({
+          text: fullPrompt
+        });
+      }
 
       // Get AI response
-      const result = await model.generateContent(fullPrompt);
+      const result = await model.generateContent(contentParts);
       const response = await result.response;
       const aiContent = response.text();
 
